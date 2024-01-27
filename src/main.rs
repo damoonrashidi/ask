@@ -28,6 +28,7 @@ enum Role {
 }
 
 fn main() -> anyhow::Result<()> {
+    const URL: &str = "https://api.openai.com/v1/chat/completions";
     let shell_var = env::var("SHELL")?;
     let is_nushell = env::var("_")?.contains("bin/nu");
     let shell = if is_nushell {
@@ -38,7 +39,6 @@ fn main() -> anyhow::Result<()> {
 
     let openai_key = env::var("OPENAI_KEY").expect("No OPENAI_KEY found in environment variables");
     let question = env::args().skip(1).collect::<Vec<String>>().join(" ");
-    const URL: &str = "https://api.openai.com/v1/chat/completions";
 
     let body = json!({
         "model": "gpt-4-1106-preview",
