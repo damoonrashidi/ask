@@ -11,7 +11,6 @@ reqwest = { version = "0.11.23", features = ["blocking", "json"] }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
 
-
 [lints.clippy]
 all = "deny"
 pedantic = "deny"
