@@ -9,6 +9,12 @@ Ask tries to understand what shell you're using and then fetches a shell command
 git for-each-ref --format='%(authorname) %09 %(refname:short)' refs/heads/
 ```
 
+## Features (Implemented or Planned)
+
+- [x] Ask for a command using natural language
+- [x] Per shell history to avoid spamming OpenAI requests. Works well with reverse history.
+- [ ] Planned: Press enter to execute command. `q`/`ESC` to abort.
+
 ## Demo
 
 ### Using nushell
