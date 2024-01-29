@@ -49,7 +49,6 @@ impl<'a> History<'a> {
     /// This function will return an error if the answer could not be written to the history file
     pub fn save_answer(&self, question: &String, answer: &String) -> anyhow::Result<()> {
         let mut file = std::fs::OpenOptions::new()
-            .write(true)
             .append(true)
             .open(self.config_path.join(format!("{}.txt", self.shell)))?;
 
