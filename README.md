@@ -19,20 +19,20 @@ git for-each-ref --format='%(authorname) %09 %(refname:short)' refs/heads/
 
 ### Using nushell
 
-
 https://github.com/damoonrashidi/ask/assets/207421/33e9644e-5791-44e9-8674-953b98e95e95
 
 ### Using zsh
 
-https://github.com/damoonrashidi/ask/assets/207421/b07409ce-bc3a-4db1-be6d-18d19db6194b
-
-
+[![asciicast](https://asciinema.org/a/8a3O4znxFshyrpBhAx8Di6160.svg)](https://asciinema.org/a/8a3O4znxFshyrpBhAx8Di6160)
 
 ## Installation
 
-Currently the only way to install is via git using Rust. I'm going to add this to homebrew in a bit.
+### Pre-built binaries
 
-````bash
+Pre-built binaries are available under [releases](https://github.com/damoonrashidi/ask/releases) in this repo.
+
+### From Source
+```bash
 git clone https://github.com/damoonrashidi/ask
 cd ./ask
 cargo install --path .
