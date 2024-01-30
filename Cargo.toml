@@ -1,12 +1,13 @@
 [package]
 name = "ask"
-version = "0.2.0"
+version = "1.0.0"
 edition = "2021"
 author = "Damoon Rashidi"
 
 
 [dependencies]
 anyhow = "1.0.79"
+inquire = "0.6.2"
 reqwest = { version = "0.11.23", features = ["blocking", "json"] }
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
