@@ -19,7 +19,7 @@ git for-each-ref --format='%(authorname) %09 %(refname:short)' refs/heads/
 
 ### Using nushell
 
-https://github.com/damoonrashidi/ask/assets/207421/33e9644e-5791-44e9-8674-953b98e95e95
+[![asciicast](https://asciinema.org/a/ZrtA0UqjDyXBhwPfhRxeAip5f.svg)](https://asciinema.org/a/ZrtA0UqjDyXBhwPfhRxeAip5f)
 
 ### Using zsh
 
