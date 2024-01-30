@@ -14,6 +14,10 @@ git for-each-ref --format='%(authorname) %09 %(refname:short)' refs/heads/
 - [x] Ask for a command using natural language
 - [x] Per shell history to avoid spamming OpenAI requests. Works well with reverse history.
 - [x] Press enter to execute command. `q`/`ESC` to abort.
+- [ ] Editing the command before executing when pressing `e`.
+- [ ] Copy command to clipboard when pressing `c`.
+- [ ] Add command to shell history after executing.
+- [ ] Add config file to enable/disable command caching, overriding shell detection etc.
 
 ## Shells that can be recognized
 - [x] bash
