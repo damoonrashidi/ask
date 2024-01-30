@@ -32,6 +32,7 @@ impl OpenAI {
 
         let body = serde_json::json!({
             "model": "gpt-4-1106-preview",
+            "n": 2,
             "messages": [
                 {
                 "role": Role::System,
