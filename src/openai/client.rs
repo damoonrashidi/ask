@@ -27,12 +27,13 @@ impl OpenAI {
         &self,
         question: &String,
         shell: &String,
+        choice_count: u8,
     ) -> anyhow::Result<Vec<String>, anyhow::Error> {
         const URL: &str = "https://api.openai.com/v1/chat/completions";
 
         let body = serde_json::json!({
             "model": "gpt-4-1106-preview",
-            "n": 2,
+            "n": choice_count,
             "messages": [
                 {
                 "role": Role::System,
