@@ -33,8 +33,6 @@ impl Config {
             return Config::default();
         };
 
-        println!("found config");
-
         match toml::from_str::<Config>(&contents.to_string()) {
             Ok(config) => config,
             Err(err) => {
