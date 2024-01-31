@@ -21,11 +21,19 @@ Ensure that an `OPENAI_APIKEY` environment variable is available in your shell. 
 export OPENAI_APIKEY="sk-...xxxx"
 ```
 
+### Homebrew
+
+```bash
+brew tap damoonrashidi/homebrew-ask https://github.com/damoonrashidi/homebrew-ask
+brew install ask
+```
+
 ### Pre-built binaries
 
 Pre-built binaries for linux, macos and windows are available under [releases](https://github.com/damoonrashidi/ask/releases) in this repo.
 
 ### From Source
+
 ```bash
 git clone https://github.com/damoonrashidi/ask
 cd ./ask
@@ -56,6 +64,7 @@ fallback = "fish"
 ```
 
 ## Shells that can be automatically recognized
+
 - [x] bash
 - [x] zsh
 - [x] nushell
