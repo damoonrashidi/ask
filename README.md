@@ -32,6 +32,12 @@ git for-each-ref --format='%(authorname) %09 %(refname:short)' refs/heads/
 
 ## Installation
 
+Ensure that an `OPENAI_APIKEY` environment variable is available in your shell. API keys can be found in your [api key settings](https://platform.openai.com/api-keys).
+
+```bash
+export OPENAI_APIKEY="sk-...xxxx"
+```
+
 ### Pre-built binaries
 
 Pre-built binaries for linux, macos and windows are available under [releases](https://github.com/damoonrashidi/ask/releases) in this repo.
