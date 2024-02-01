@@ -26,20 +26,24 @@ impl<'a> History<'a> {
         Ok(Self { config_path, shell })
     }
 
+    /// If this question has previously been asked for the current shell this
+    /// function will return a vec of answers. If the question has not been
+    /// asked, if the history file could not be read if the question doesn't
+    /// have any answers the function will return the empty vec.
     #[must_use]
-    pub fn look_for_answer(&self, question: &String) -> Option<String> {
+    pub fn look_for_answer(&self, question: &String) -> Vec<String> {
         let file_path = self.config_path.join(format!("{}.txt", self.shell));
         let Ok(line) = std::fs::read_to_string(file_path) else {
-            return None;
+            return vec![];
         };
-        let line = line
+        let Some(line) = line
             .lines()
-            .find(|line| line.starts_with(format!("{question}::::").as_str()))?;
+            .find(|line| line.starts_with(format!("{question}::::").as_str()))
+        else {
+            return vec![];
+        };
 
-        if let Some((_, answer)) = line.split_once("::::") {
-            return Some(answer.to_string());
-        }
-        None
+        line.split("::::").skip(1).map(String::from).collect()
     }
 
     /// `save_answer`
@@ -47,15 +51,17 @@ impl<'a> History<'a> {
     /// # Errors
     ///
     /// This function will return an error if the answer could not be written to the history file
-    pub fn save_answer(&self, question: &String, answer: &String) -> anyhow::Result<()> {
+    pub fn save_answer(&self, question: &String, answers: &[String]) -> anyhow::Result<()> {
         let mut file = std::fs::OpenOptions::new()
             .append(true)
             .open(self.config_path.join(format!("{}.txt", self.shell)))?;
 
-        writeln!(file, "{question}::::{answer}")?;
+        let delimitered_answers = answers.join("::::");
+        writeln!(file, "{question}::::{delimitered_answers}")?;
         Ok(())
     }
 
+    /// Creates a new history file (if one doesn't exist) for the given shell.
     fn make_history_file(config_path: &PathBuf, shell: &str) -> Result<(), std::io::Error> {
         create_dir_all(config_path)?;
 

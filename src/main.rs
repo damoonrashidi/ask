@@ -18,12 +18,10 @@ fn main() -> anyhow::Result<()> {
         .to_string();
 
     let history = History::new(&shell)?;
+    let answers = history.look_for_answer(&question);
 
-    if let (true, Some(answer)) = (
-        config.command.enable_history,
-        history.look_for_answer(&question),
-    ) {
-        let command = Select::new("Command suggestions", vec![answer]).prompt()?;
+    if config.command.enable_history && !answers.is_empty() {
+        let command = Select::new("Command suggestions", answers).prompt()?;
         let output = Command::new("sh").arg("-c").arg(&command).output()?;
         println!("{}", String::from_utf8(output.stdout)?);
     } else {
@@ -31,10 +29,10 @@ fn main() -> anyhow::Result<()> {
                     "Could not find required \"OPENAI_APIKEY\" in environment variables. Make sure it's set.",
                 ));
         if let Ok(answers) = client.ask(&question, &shell) {
-            let command = Select::new("Command suggestions", answers).prompt()?;
             if config.command.enable_history {
-                history.save_answer(&question, &command)?;
+                history.save_answer(&question, &answers)?;
             }
+            let command = Select::new("Command suggestions", answers).prompt()?;
             let output = Command::new("sh").arg("-c").arg(&command).output()?;
             println!("{}", String::from_utf8(output.stdout)?);
         }
