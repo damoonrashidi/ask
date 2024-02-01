@@ -33,13 +33,16 @@ impl Guesser {
             return Ok("windows".to_string());
         }
 
-        let child = std::process::Command::new("ps")
-            .arg("-p")
-            .arg(std::os::unix::process::parent_id().to_string())
-            .arg("-o")
-            .arg("comm=")
-            .output()?;
-        let parent_process_name = String::from_utf8_lossy(&child.stdout).trim().to_string();
-        Ok(parent_process_name)
+        #[cfg(any(unix, target_os = "macos"))]
+        {
+            let child = std::process::Command::new("ps")
+                .arg("-p")
+                .arg(std::os::unix::process::parent_id().to_string())
+                .arg("-o")
+                .arg("comm=")
+                .output()?;
+            let parent_process_name = String::from_utf8_lossy(&child.stdout).trim().to_string();
+            Ok(parent_process_name)
+        }
     }
 }
