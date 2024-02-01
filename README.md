@@ -68,5 +68,5 @@ fallback = "fish"
 - [x] bash
 - [x] zsh
 - [x] nushell
-- [ ] Fish
+- [x] Fish
 - [ ] Powershell
