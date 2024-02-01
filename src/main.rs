@@ -18,25 +18,44 @@ fn main() -> anyhow::Result<()> {
         .to_string();
 
     let history = History::new(&shell)?;
-    let answers = history.look_for_answer(&question);
+    let ans_from_history = history.look_for_answer(&question);
 
-    if config.command.enable_history && !answers.is_empty() {
-        let command = Select::new("Command suggestions", answers).prompt()?;
-        let output = Command::new("sh").arg("-c").arg(&command).output()?;
-        println!("{}", String::from_utf8(output.stdout)?);
+    let answers = if config.command.enable_history && !ans_from_history.is_empty() {
+        ans_from_history
     } else {
         let client = OpenAI::new(env::var("OPENAI_APIKEY").expect(
-                    "Could not find required \"OPENAI_APIKEY\" in environment variables. Make sure it's set.",
-                ));
+        "Could not find required \"OPENAI_APIKEY\" in environment variables. Make sure it's set.",
+    ));
         if let Ok(answers) = client.ask(&question, &shell) {
             if config.command.enable_history {
                 history.save_answer(&question, &answers)?;
             }
-            let command = Select::new("Command suggestions", answers).prompt()?;
-            let output = Command::new("sh").arg("-c").arg(&command).output()?;
-            println!("{}", String::from_utf8(output.stdout)?);
+            answers
+        } else {
+            vec![]
         }
     };
+
+    if answers.is_empty() {
+        return Err(anyhow::Error::msg(
+            "Could not find an answer to your question. Please try rewording it",
+        ));
+    }
+
+    let Ok(command) = Select::new("Command suggestions", answers)
+        .with_help_message("↕ to select, ↵  to run and ESC to cancel")
+        .prompt()
+    else {
+        return Ok(());
+    };
+    let output = Command::new("sh").arg("-c").arg(&command).output()?;
+    let formatted_output = String::from_utf8(if output.status.success() {
+        output.stdout.clone()
+    } else {
+        output.stderr
+    })?;
+
+    println!("{formatted_output}");
 
     Ok(())
 }
