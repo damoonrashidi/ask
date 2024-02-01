@@ -11,6 +11,9 @@ impl Guesser {
             match parent.as_str() {
                 "nu" => return "nushell".to_string(),
                 "fish" => return "fish".to_string(),
+                "ksh" => return "KornShell".to_string(),
+                "csh" => return "C Shell".to_string(),
+                "tcsh" => return "TSCH".to_string(),
                 "windows" => return "windows cmd".to_string(),
                 _ => {}
             }

@@ -79,4 +79,7 @@ fallback = "fish"
 - [x] zsh
 - [x] nushell
 - [x] Fish
+- [x] C Shell
+- [x] Korn
+- [x] TSCH
 - [ ] Powershell
