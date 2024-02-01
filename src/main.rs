@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
         let client = OpenAI::new(env::var("OPENAI_APIKEY").expect(
                     "Could not find required \"OPENAI_APIKEY\" in environment variables. Make sure it's set.",
                 ));
-        if let Ok(answers) = client.ask(&question, &shell, config.command.choice_count) {
+        if let Ok(answers) = client.ask(&question, &shell) {
             let command = Select::new("Command suggestions", answers).prompt()?;
             if config.command.enable_history {
                 history.save_answer(&question, &command)?;

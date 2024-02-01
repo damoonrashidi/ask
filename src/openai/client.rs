@@ -1,6 +1,9 @@
 use anyhow::Error;
 
-use crate::openai::response::{OpenAIResponse, Role};
+use crate::{
+    config::Config,
+    openai::response::{OpenAIResponse, Role},
+};
 
 #[derive(Debug)]
 pub struct OpenAI {
@@ -27,13 +30,13 @@ impl OpenAI {
         &self,
         question: &String,
         shell: &String,
-        choice_count: u8,
     ) -> anyhow::Result<Vec<String>, anyhow::Error> {
         const URL: &str = "https://api.openai.com/v1/chat/completions";
+        let config = Config::get_or_default();
 
         let body = serde_json::json!({
-            "model": "gpt-4-1106-preview",
-            "n": choice_count,
+            "model": config.command.model,
+            "n": config.command.choice_count,
             "messages": [
                 {
                 "role": Role::System,
