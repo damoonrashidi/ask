@@ -46,20 +46,30 @@ A config can be created in the users config directory `~/.config/ask/config.toml
 
 ```toml
 [command]
-# If answers should be saved and looked up locally
-# default true
+# If enabled ask will cache responses for each shell into a local history. This yields faster answers for repeated questions and helps avoiding API requests.
+#
+# default: true
 enable_history = true
 
-# The number of choices to ask for
+# Selects which ChatGPT model to query for answers. A full list can be found in the API documentation: https://platform.openai.com/docs/models
+#
+# default: "gpt-4-1106-preview"
+model = "gpt-4-1106-preview"
+
+# The number of choices to ask for, the higher the number the longer the requests will take.
+#
+# default: 2, min: 1
 choice_count = 3
 
 [shell]
 # If set, ask will not try to guess the shell and instead use the force_use shell name.
-# default None
+#
+# default: None
 force_use = "powershell"
 
 # If set, and if ask cannot reliably determine the shell it will fallback to this shell. Overriden by `force_use`
-# default bash
+#
+# default: "bash"
 fallback = "fish"
 ```
 

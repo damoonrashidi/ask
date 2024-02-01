@@ -57,7 +57,7 @@ pub struct CommandConf {
     ///
     /// Default: "gpt-4-1106-preview"
     ///
-    /// Example: variation_count: 3
+    /// Example: "gpt-3.5-turbo-1106"
     #[serde(default = "default_model")]
     pub model: String,
 
