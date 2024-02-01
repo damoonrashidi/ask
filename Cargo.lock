@@ -29,7 +29,6 @@ version = "1.2.0"
 dependencies = [
  "anyhow",
  "inquire",
- "libc",
  "reqwest",
  "serde",
  "serde_json",
