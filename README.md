@@ -2,6 +2,8 @@
 
 Ask tries to understand what shell you're using and then fetches a command specifically for that shell based on your natural language input using ChatGPT. A per shell history is saved to offer quicker lookups and avoiding spamming OpenAI requests.
 
+Most shells on linux and unix can be automatically detected. Windows support is limited but can be enabled by hard-setting the shell via the [config](#configuration)
+
 ## Example
 
 ```bash
@@ -42,7 +44,7 @@ cargo install --path .
 
 ## Configuration
 
-A config can be created in the users config directory `~/.config/ask/config.toml`.
+A config can be created in the users config directory `~/.config/ask/config.toml` on macos/linux.
 
 ```toml
 [command]
@@ -62,24 +64,15 @@ model = "gpt-4-1106-preview"
 choice_count = 3
 
 [shell]
-# If set, ask will not try to guess the shell and instead use the force_use shell name.
+# If set, ask will not try to guess the shell and instead use the force_use shell name. Must be the actual shell binary name such as "nu" for nushell.
 #
 # default: None
-force_use = "powershell"
+force_use = "pwsh"
 
-# If set, and if ask cannot reliably determine the shell it will fallback to this shell. Overriden by `force_use`
+# If set, and if ask cannot reliably determine the shell it will fallback to
+# this shell. Overriden by `force_use`. Must be the actual shell binary name
+# such as "nu" for nushell.
 #
 # default: "bash"
 fallback = "fish"
 ```
-
-## Shells that can be automatically recognized
-
-- [x] bash
-- [x] zsh
-- [x] nushell
-- [x] Fish
-- [x] C Shell
-- [x] Korn
-- [x] TSCH
-- [ ] Powershell

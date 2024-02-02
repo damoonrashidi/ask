@@ -8,15 +8,7 @@ impl Guesser {
     #[must_use]
     pub fn guess(fallback: String) -> String {
         if let Ok(parent) = Guesser::get_parent_process_name() {
-            match parent.as_str() {
-                "nu" => return "nushell".to_string(),
-                "fish" => return "fish".to_string(),
-                "ksh" => return "KornShell".to_string(),
-                "csh" => return "C Shell".to_string(),
-                "tcsh" => return "TSCH".to_string(),
-                "windows" => return "windows cmd".to_string(),
-                _ => {}
-            }
+            return parent.chars().filter(|c| c.is_alphabetic()).collect();
         }
         return std::env::var("SHELL")
             .map(|shell| {
@@ -27,7 +19,7 @@ impl Guesser {
                     .map_or(fallback, String::from)
                     .to_string()
             })
-            .unwrap_or(String::from("bash"));
+            .unwrap_or(String::from("bsh"));
     }
 
     fn get_parent_process_name() -> Result<String, std::io::Error> {

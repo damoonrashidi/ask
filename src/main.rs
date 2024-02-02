@@ -10,6 +10,8 @@ fn main() -> anyhow::Result<()> {
         .force_use
         .unwrap_or(Guesser::guess(config.shell.fallback));
 
+    println!("{shell}");
+
     let question = env::args()
         .skip(1)
         .collect::<Vec<String>>()
