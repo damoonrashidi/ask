@@ -13,7 +13,7 @@ git for-each-ref --format='%(authorname) %09 %(refname:short)' refs/heads/
 
 ## Demo
 
-[![asciicast](https://asciinema.org/a/ndUtX47ehTMplYa8ybHN9Rt0o.svg)](https://asciinema.org/a/ndUtX47ehTMplYa8ybHN9Rt0o)
+[![asciicast](https://asciinema.org/a/635793.svg)](https://asciinema.org/a/635793)
 
 ## Installation
 

@@ -17,6 +17,11 @@ fn main() -> anyhow::Result<()> {
         .trim()
         .to_string();
 
+    if question.is_empty() {
+        println!("Provide a question, e.g. \"list all large files in this folder\"");
+        return Ok(());
+    }
+
     let history = History::new(&shell)?;
     let ans_from_history = history.look_for_answer(&question);
 
