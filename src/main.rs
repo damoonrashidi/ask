@@ -48,7 +48,8 @@ fn main() -> anyhow::Result<()> {
     else {
         return Ok(());
     };
-    let output = Command::new("sh").arg("-c").arg(&command).output()?;
+
+    let output = Command::new(shell).arg("-c").arg(&command).output()?;
     let formatted_output = String::from_utf8(if output.status.success() {
         output.stdout.clone()
     } else {
