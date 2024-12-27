@@ -45,19 +45,21 @@ impl Config {
 
 #[derive(Deserialize, Debug)]
 pub struct CommandConf {
-    /// If enabled will cache responses per shell and use the same answer
-    /// if the same question is asked again.
+    /// If enabled ask will store all answers in shell specific
+    /// caches. If the same question is asked again the cache is
+    /// checked first, to avoid going an extra HTTP call.
+    ///
+    /// Default: true
     ///
     /// Example: enable_history: true
     #[serde(default = "enable_history")]
     pub enable_history: bool,
 
-    /// Which ChatGPT model to query. A full list of models can be found in the
-    /// [API docs](https://platform.openai.com/docs/models/overview).
+    /// Which AI model to query. The model needs to be installed via Ollama.
     ///
-    /// Default: "gpt-4-1106-preview"
+    /// Default: "llama3.2:3b"
     ///
-    /// Example: "gpt-3.5-turbo-1106"
+    /// Example: "mistal-nemo"
     #[serde(default = "default_model")]
     pub model: String,
 
@@ -74,7 +76,7 @@ impl Default for CommandConf {
         Self {
             enable_history: true,
             choice_count: 2,
-            model: "gpt-4-1106-preview".to_owned(),
+            model: "llama3.2:3b".to_owned(),
         }
     }
 }
@@ -99,7 +101,7 @@ pub struct ShellConf {
 }
 
 fn default_model() -> String {
-    String::from("gpt-4-1106-preview")
+    String::from("llama3.2:3b")
 }
 
 fn choice_count() -> u8 {
@@ -111,7 +113,7 @@ fn enable_history() -> bool {
 }
 
 fn fallback_shell() -> String {
-    String::from("bash")
+    String::from("/bin/bash")
 }
 
 fn force_shell() -> Option<String> {

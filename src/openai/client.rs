@@ -6,16 +6,9 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct OpenAI {
-    api_key: String,
-}
+pub struct OpenAI;
 
 impl OpenAI {
-    #[must_use]
-    pub fn new(api_key: String) -> Self {
-        Self { api_key }
-    }
-
     /// ask
     ///
     /// returns a list of Strings representing the shell commands for
@@ -31,7 +24,7 @@ impl OpenAI {
         question: &String,
         shell: &String,
     ) -> anyhow::Result<Vec<String>, anyhow::Error> {
-        const URL: &str = "https://api.openai.com/v1/chat/completions";
+        const URL: &str = "http://localhost:11434/v1/chat/completions";
         let config = Config::get_or_default();
 
         let body = serde_json::json!({
@@ -42,10 +35,10 @@ impl OpenAI {
                 "role": Role::System,
                 "content": format!(
                     r#"
-                    You are a helpful {shell} code snippet generator.
-                    You will be provided a description of the requested {shell}
-                    command and you should output the {shell} command and nothing else.
-                    Your response should be strictly a string with the command, no backticks, not json or anything else. Just the command."#,
+You are a helpful {shell} code snippet generator.
+You will be provided a description of the requested {shell}
+command and you should output the {shell} command and nothing else.
+Your response should be strictly a string with the command, no backticks, not json or anything else. Just the command."#,
                 ),
             },
             {
@@ -55,22 +48,19 @@ impl OpenAI {
             ],
         });
 
-        let Ok(response) = reqwest::blocking::Client::new()
+        let result = reqwest::blocking::Client::new()
             .post(URL)
-            .bearer_auth(&self.api_key)
             .header("Content-Type", "application/json")
             .json(&body)
             .send()
             .expect("remote resource could not be reached")
             .json::<OpenAIResponse>()
-        else {
-            return Err(Error::msg("Failed to parse OpenAI response"));
-        };
-
-        Ok(response
+            .map_err(|_| Error::msg("Failed tpo parse AI response"))?
             .choices
             .into_iter()
             .map(|choice| choice.message.content)
-            .collect())
+            .collect();
+
+        Ok(result)
     }
 }

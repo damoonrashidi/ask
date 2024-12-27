@@ -21,9 +21,14 @@ impl<'a> History<'a> {
             return Err(anyhow::Error::msg("could not get history"));
         };
 
-        History::make_history_file(&config_path, shell)?;
+        let stripped_shell = shell.split('/').last().unwrap();
 
-        Ok(Self { config_path, shell })
+        History::make_history_file(&config_path, stripped_shell)?;
+
+        Ok(Self {
+            config_path,
+            shell: stripped_shell,
+        })
     }
 
     /// If this question has previously been asked for the current shell this

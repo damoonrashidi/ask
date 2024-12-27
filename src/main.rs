@@ -1,6 +1,6 @@
 use ask::{config::Config, history::History, openai::client::OpenAI, shell::Guesser};
-use inquire::Select;
-use std::{env, process::Command, string::ToString};
+use cliclack::select;
+use std::{env, process::Command};
 
 fn main() -> anyhow::Result<()> {
     let config = Config::get_or_default();
@@ -18,7 +18,7 @@ fn main() -> anyhow::Result<()> {
         .to_string();
 
     if question.is_empty() {
-        println!("Provide a question, e.g. \"list all large files in this folder\"");
+        println!("Provide a question, e.g. \"ask list all large files in this folder\"");
         return Ok(());
     }
 
@@ -28,10 +28,7 @@ fn main() -> anyhow::Result<()> {
     let answers = if config.command.enable_history && !ans_from_history.is_empty() {
         ans_from_history
     } else {
-        let client = OpenAI::new(env::var("OPENAI_APIKEY").expect(
-        "Could not find required \"OPENAI_APIKEY\" in environment variables. Make sure it's set.",
-    ));
-        if let Ok(answers) = client.ask(&question, &shell) {
+        if let Ok(answers) = OpenAI.ask(&question, &shell) {
             if config.command.enable_history {
                 history.save_answer(&question, &answers)?;
             }
@@ -47,21 +44,30 @@ fn main() -> anyhow::Result<()> {
         ));
     }
 
-    let Ok(command) = Select::new("Command suggestions", answers)
-        .with_help_message("↕ to select, ↵  to run and ESC to cancel")
-        .prompt()
-    else {
-        return Ok(());
-    };
+    let options = answers
+        .iter()
+        .map(|option| (option, option, option))
+        .collect::<Vec<_>>();
+
+    let command = select("Select a command to run")
+        .items(&options)
+        .filter_mode()
+        .interact()?
+        .trim_start_matches('`')
+        .trim_end_matches('`');
 
     let output = Command::new(shell).arg("-c").arg(&command).output()?;
     let formatted_output = String::from_utf8(if output.status.success() {
-        output.stdout.clone()
+        output.stdout
     } else {
         output.stderr
     })?;
 
-    println!("{formatted_output}");
+    if output.status.success() {
+        println!("{formatted_output}");
+    } else {
+        eprintln!("{formatted_output}");
+    }
 
     Ok(())
 }
