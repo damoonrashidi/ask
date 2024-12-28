@@ -1,8 +1,8 @@
 use anyhow::Error;
 
 use crate::{
+    ai::response::{OpenAIResponse, Role},
     config::Config,
-    openai::response::{OpenAIResponse, Role},
 };
 
 #[derive(Debug)]
@@ -38,7 +38,7 @@ impl OpenAI {
 You are a helpful {shell} code snippet generator.
 You will be provided a description of the requested {shell}
 command and you should output the {shell} command and nothing else.
-Your response should be strictly a string with the command, no backticks, not json or anything else. Just the command."#,
+Your response should be strictly a string with the command, do not add backticks, not json or any other format. Do not add any formatting."#,
                 ),
             },
             {

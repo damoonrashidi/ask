@@ -1,4 +1,4 @@
-use ask::{config::Config, history::History, openai::client::OpenAI, shell::Guesser};
+use ask::{ai::client::OpenAI, config::Config, history::History, shell::Guesser};
 use cliclack::select;
 use std::{env, process::Command};
 
@@ -46,7 +46,7 @@ fn main() -> anyhow::Result<()> {
 
     let options = answers
         .iter()
-        .map(|option| (option, option, option))
+        .map(|option| (option, option, ""))
         .collect::<Vec<_>>();
 
     let command = select("Select a command to run")
