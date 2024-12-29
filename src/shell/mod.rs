@@ -8,24 +8,23 @@ impl Guesser {
     #[must_use]
     pub fn guess(fallback: String) -> String {
         if let Ok(parent) = Guesser::get_parent_process_name() {
-            return parent.chars().collect();
+            return parent;
         }
-        return std::env::var("SHELL")
+        std::env::var("SHELL")
             .map(|shell| {
                 shell
-                    .clone()
                     .split('/')
                     .last()
                     .map_or(fallback, String::from)
                     .to_string()
             })
-            .unwrap_or(String::from("/bin/bash"));
+            .unwrap_or(String::from("/bin/bash"))
     }
 
     fn get_parent_process_name() -> Result<String, std::io::Error> {
         #[cfg(target_os = "windows")]
         {
-            return Ok("windows".to_string());
+            return Ok("pwsh".to_string());
         }
 
         #[cfg(any(unix, target_os = "macos"))]
@@ -36,7 +35,11 @@ impl Guesser {
                 .arg("-o")
                 .arg("comm=")
                 .output()?;
-            let parent_process_name = String::from_utf8_lossy(&child.stdout).trim().to_string();
+            let parent_process_name = String::from_utf8_lossy(&child.stdout)
+                .trim()
+                .chars()
+                .filter(char::is_ascii)
+                .collect();
             Ok(parent_process_name)
         }
     }

@@ -21,7 +21,7 @@ impl<'a> History<'a> {
             return Err(anyhow::Error::msg("could not get history"));
         };
 
-        let stripped_shell = shell.split('/').last().unwrap();
+        let stripped_shell = shell.split('/').last().unwrap_or(shell);
 
         History::make_history_file(&config_path, stripped_shell)?;
 

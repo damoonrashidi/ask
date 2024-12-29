@@ -51,7 +51,7 @@ pub struct CommandConf {
     ///
     /// Default: true
     ///
-    /// Example: enable_history: true
+    /// Example: `enable_history: true`
     #[serde(default = "enable_history")]
     pub enable_history: bool,
 
@@ -63,10 +63,10 @@ pub struct CommandConf {
     #[serde(default = "default_model")]
     pub model: String,
 
-    /// The number of answer choices to return from ChatGPT.
+    /// The number of answer choices to return from AI agent.
     /// Default: 2, min: 1
     ///
-    /// Example: variation_count: 3
+    /// Example: `choice_count: 3`
     #[serde(default = "choice_count")]
     pub choice_count: u8,
 }
@@ -87,7 +87,7 @@ pub struct ShellConf {
     ///
     /// Default: None
     ///
-    /// Example: force_shell: "fish"
+    /// Example: `force_shell: "fish"`
     #[serde(default = "force_shell")]
     pub force_use: Option<String>,
 
