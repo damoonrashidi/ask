@@ -68,12 +68,7 @@ impl AI {
                     match config.ai.provider {
                         crate::config::AIProvider::Ollama => {
                             for line in text.lines() {
-                                let Some(content) =
-                                    serde_json::from_str::<Value>(line).ok().and_then(|json| {
-                                        let message = json.get("message")?.get("content")?;
-                                        message.as_str().map(String::from)
-                                    })
-                                else {
+                                let Some(content) = AI::parse_ollama_chunk(line) else {
                                     continue;
                                 };
                                 tx.send((i, content.to_string())).unwrap();
@@ -107,5 +102,12 @@ impl AI {
             .get("content")?
             .as_str()
             .map(String::from)
+    }
+
+    fn parse_ollama_chunk(chunk: &str) -> Option<String> {
+        serde_json::from_str::<Value>(chunk).ok().and_then(|json| {
+            let message = json.get("message")?.get("content")?;
+            message.as_str().map(String::from)
+        })
     }
 }

@@ -53,21 +53,29 @@ A config can be created in the users config directory `~/.config/ask/config.toml
 # default: true
 enable_history = true
 
-# Selects which ChatGPT model to query for answers. A full list can be found in the API documentation: https://platform.openai.com/docs/models
-#
-# default: "gpt-4-1106-preview"
-model = "gpt-4-1106-preview"
-
 # The number of choices to ask for, the higher the number the longer the requests will take.
 #
 # default: 2, min: 1
 choice_count = 3
 
+[ai]
+# Selects which provider to query for results. Options are `Ollama`, `OpenAI` and `Anthropic`
+#
+# default: "Ollama"
+model = "gpt-4o-mini"
+
+
+# Selects which model to query for answers.
+#
+# default: "gpt-4o-mini"
+model = "gpt-4o-mini"
+
+
 [shell]
 # If set, ask will not try to guess the shell and instead use the force_use shell name. Must be the actual shell binary name such as "nu" for nushell.
 #
 # default: None
-force_use = "pwsh"
+force_use = "zsh"
 
 # If set, and if ask cannot reliably determine the shell it will fallback to
 # this shell. Overriden by `force_use`. Must be the actual shell binary name
