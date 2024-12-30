@@ -8,6 +8,9 @@ pub struct Config {
 
     #[serde(default)]
     pub shell: ShellConf,
+
+    #[serde(default)]
+    pub ai: AIConf,
 }
 
 impl Config {
@@ -55,14 +58,6 @@ pub struct CommandConf {
     #[serde(default = "enable_history")]
     pub enable_history: bool,
 
-    /// Which AI model to query. The model needs to be installed via Ollama.
-    ///
-    /// Default: "llama3.2:3b"
-    ///
-    /// Example: "mistal-nemo"
-    #[serde(default = "default_model")]
-    pub model: String,
-
     /// The number of answer choices to return from AI agent.
     /// Default: 2, min: 1
     ///
@@ -76,7 +71,69 @@ impl Default for CommandConf {
         Self {
             enable_history: true,
             choice_count: 2,
-            model: "llama3.2:3b".to_owned(),
+        }
+    }
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AIConf {
+    /// The endpoint for the AI provider, `OpenAI`, `Anthropic` or `Ollama`.
+    ///
+    /// Default: "llama3.2:3b"
+    ///
+    /// Example: "mistal-nemo", "claude-3-5-sonnet-20241022", "GPT-4o"
+    #[serde(default = "default_provider")]
+    pub provider: AIProvider,
+
+    /// Which AI model to query, the model needs to be available via the provider
+    ///
+    /// Default: "llama3.2:3b"
+    ///
+    /// Example: "mistal-nemo"
+    #[serde(default = "default_model")]
+    pub model: String,
+}
+
+#[derive(Deserialize, Debug, Clone, Copy)]
+pub enum AIProvider {
+    Ollama,
+    OpenAI,
+    Anthropic,
+}
+
+impl AIProvider {
+    #[must_use]
+    pub fn get_url(&self) -> String {
+        match self {
+            AIProvider::Ollama => String::from("http://localhost:11434/api/generate"),
+            AIProvider::OpenAI => String::from("https://api.openai.com/v1/api/generate"),
+            AIProvider::Anthropic => String::from("https://api.anthropic.com/v1/api/generate"),
+        }
+    }
+
+    #[must_use]
+    pub fn get_api_key_header(&self) -> String {
+        match self {
+            AIProvider::Anthropic | AIProvider::Ollama => String::from("x-api-key"),
+            AIProvider::OpenAI => String::from("OPENAI_API_KEY"),
+        }
+    }
+
+    #[must_use]
+    pub fn get_api_key_value(&self) -> String {
+        match self {
+            AIProvider::Ollama => String::new(),
+            AIProvider::OpenAI => std::env::var("OPENAI_API_KEY").unwrap_or_default(),
+            AIProvider::Anthropic => std::env::var("ANTHROPIC_API_KEY").unwrap_or_default(),
+        }
+    }
+}
+
+impl Default for AIConf {
+    fn default() -> Self {
+        Self {
+            model: "llama3.2:3b".to_string(),
+            provider: AIProvider::Ollama,
         }
     }
 }
@@ -102,6 +159,10 @@ pub struct ShellConf {
 
 fn default_model() -> String {
     String::from("llama3.2:3b")
+}
+
+fn default_provider() -> AIProvider {
+    AIProvider::Ollama
 }
 
 fn choice_count() -> u8 {

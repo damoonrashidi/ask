@@ -20,8 +20,8 @@ impl AI {
     /// Errors if the response could not be parsed.
     #[must_use]
     pub fn ask(question: &String, shell: &String) -> Receiver<(u8, String)> {
-        const URL: &str = "http://localhost:11434/api/generate";
         let config = Config::get_or_default();
+        let url = config.ai.provider.get_url();
         let prompt = format!(
             r#"You are a helpful {shell} code snippet generator.
         You will be provided a description of the requested {shell}
@@ -30,7 +30,7 @@ impl AI {
         do not add backticks, not json or any other format. Do not add any formatting. Question: {question}"#
         );
         let body = serde_json::json!({
-            "model": config.command.model,
+            "model": config.ai.model,
             "options": {
                 "temperature": 1.5,
             },
@@ -42,10 +42,15 @@ impl AI {
         for i in 0..config.command.choice_count {
             let tx = tx.clone();
             let body = body.clone();
+            let url = url.clone();
             tokio::spawn(async move {
                 let client = reqwest::Client::new();
                 let mut stream = client
-                    .post(URL)
+                    .post(url)
+                    .header(
+                        config.ai.provider.get_api_key_header(),
+                        config.ai.provider.get_api_key_value(),
+                    )
                     .json(&body)
                     .send()
                     .await
