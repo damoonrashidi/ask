@@ -105,9 +105,9 @@ impl AIProvider {
     #[must_use]
     pub fn get_url(&self) -> String {
         match self {
-            AIProvider::Ollama => String::from("http://localhost:11434/api/generate"),
-            AIProvider::OpenAI => String::from("https://api.openai.com/v1/api/generate"),
-            AIProvider::Anthropic => String::from("https://api.anthropic.com/v1/api/generate"),
+            AIProvider::Ollama => String::from("http://localhost:11434/api/chat"),
+            AIProvider::OpenAI => String::from("https://api.openai.com/v1/chat/completions"),
+            AIProvider::Anthropic => String::from("https://api.anthropic.com/v1/chat/completions"),
         }
     }
 

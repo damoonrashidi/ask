@@ -22,19 +22,22 @@ impl AI {
     pub fn ask(question: &String, shell: &String) -> Receiver<(u8, String)> {
         let config = Config::get_or_default();
         let url = config.ai.provider.get_url();
-        let prompt = format!(
-            r#"You are a helpful {shell} code snippet generator.
-        You will be provided a description of the requested {shell}
-        command and you should output the {shell} command and nothing else.
-        Your response should be strictly a string with the command,
-        do not add backticks, not json or any other format. Do not add any formatting. Question: {question}"#
+        let system_prompt = format!(
+            "You are a helpful {shell} code snippet generator.
+    You will be provided a description of the requested {shell}
+    command and you should output the {shell} command and nothing else.
+    Your response should be strictly a string with the command,
+    do not add backticks, not json or any other format. Do not add any formatting."
         );
         let body = serde_json::json!({
             "model": config.ai.model,
             "options": {
                 "temperature": 1.5,
             },
-            "prompt": prompt
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": question}
+            ],
         });
 
         let (tx, rx) = std::sync::mpsc::channel();
@@ -62,6 +65,9 @@ impl AI {
                     let Ok(text) = String::from_utf8(chunk.to_vec()) else {
                         continue;
                     };
+
+                    println!("{text}");
+
                     for line in text.lines() {
                         let Some(content) = serde_json::from_str::<Value>(line)
                             .ok()
