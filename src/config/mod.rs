@@ -115,7 +115,7 @@ impl AIProvider {
     pub fn get_api_key_header(&self) -> String {
         match self {
             AIProvider::Anthropic | AIProvider::Ollama => String::from("x-api-key"),
-            AIProvider::OpenAI => String::from("OPENAI_API_KEY"),
+            AIProvider::OpenAI => String::from("Authorization"),
         }
     }
 

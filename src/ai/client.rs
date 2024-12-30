@@ -24,16 +24,15 @@ impl AI {
         let url = config.ai.provider.get_url();
         let system_prompt = format!(
             "You are a helpful {shell} code snippet generator.
-    You will be provided a description of the requested {shell}
-    command and you should output the {shell} command and nothing else.
-    Your response should be strictly a string with the command,
-    do not add backticks, not json or any other format. Do not add any formatting."
+        You will be provided a description of the requested {shell}
+        command and you should output the {shell} command and nothing else.
+        Your response should be strictly a string with the command,
+        do not add backticks, not json or any other format. Do not add any formatting."
         );
         let body = serde_json::json!({
             "model": config.ai.model,
-            "options": {
-                "temperature": 1.5,
-            },
+            "temperature": 1.0,
+            "stream": true,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": question}
@@ -52,7 +51,7 @@ impl AI {
                     .post(url)
                     .header(
                         config.ai.provider.get_api_key_header(),
-                        config.ai.provider.get_api_key_value(),
+                        format!("Bearer {}", config.ai.provider.get_api_key_value()),
                     )
                     .json(&body)
                     .send()
@@ -66,24 +65,47 @@ impl AI {
                         continue;
                     };
 
-                    println!("{text}");
-
-                    for line in text.lines() {
-                        let Some(content) = serde_json::from_str::<Value>(line)
-                            .ok()
-                            .and_then(|json| {
-                                json.get("response").map(std::borrow::ToOwned::to_owned)
-                            })
-                            .and_then(|response| response.as_str().map(String::from))
-                        else {
-                            continue;
-                        };
-                        tx.send((i, content.to_string())).unwrap();
-                    }
+                    match config.ai.provider {
+                        crate::config::AIProvider::Ollama => {
+                            for line in text.lines() {
+                                let Some(content) =
+                                    serde_json::from_str::<Value>(line).ok().and_then(|json| {
+                                        let message = json.get("message")?.get("content")?;
+                                        message.as_str().map(String::from)
+                                    })
+                                else {
+                                    continue;
+                                };
+                                tx.send((i, content.to_string())).unwrap();
+                            }
+                        }
+                        crate::config::AIProvider::OpenAI => {
+                            for line in text.lines() {
+                                let Some(content) = AI::parse_openai_chunk(line) else {
+                                    continue;
+                                };
+                                tx.send((i, content.to_string())).unwrap();
+                            }
+                        }
+                        crate::config::AIProvider::Anthropic => todo!(),
+                    };
                 }
             });
         }
 
         rx
+    }
+
+    fn parse_openai_chunk(chunk: &str) -> Option<String> {
+        let stripped = chunk.trim().strip_prefix("data: ")?;
+        let parsed = serde_json::from_str::<Value>(stripped).ok()?;
+
+        parsed
+            .get("choices")?
+            .get(0)?
+            .get("delta")?
+            .get("content")?
+            .as_str()
+            .map(String::from)
     }
 }
