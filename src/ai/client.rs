@@ -14,10 +14,6 @@ impl AI {
     /// # Panics
     ///
     /// This function will panic if the remote resource could not be reached.
-    ///
-    /// # Errors
-    ///
-    /// Errors if the response could not be parsed.
     #[must_use]
     pub fn ask(question: &String, shell: &String) -> Receiver<(u8, String)> {
         let config = Config::get_or_default();
@@ -45,13 +41,14 @@ impl AI {
             let tx = tx.clone();
             let body = body.clone();
             let url = url.clone();
+
             tokio::spawn(async move {
                 let client = reqwest::Client::new();
                 let mut stream = client
                     .post(url)
                     .header(
                         config.ai.provider.get_api_key_header(),
-                        format!("Bearer {}", config.ai.provider.get_api_key_value()),
+                        config.ai.provider.get_api_key_value(),
                     )
                     .json(&body)
                     .send()
@@ -109,5 +106,16 @@ impl AI {
             let message = json.get("message")?.get("content")?;
             message.as_str().map(String::from)
         })
+    }
+
+    #[allow(unused)]
+    fn parse_anthropic_chunk(chunk: &str) -> Option<String> {
+        let stripped = chunk.trim().strip_prefix("event: completion")?.trim();
+        serde_json::from_str::<Value>(stripped)
+            .ok()
+            .and_then(|json| {
+                let text = json.get("completion")?;
+                text.as_str().map(String::from)
+            })
     }
 }

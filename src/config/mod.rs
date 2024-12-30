@@ -107,7 +107,7 @@ impl AIProvider {
         match self {
             AIProvider::Ollama => String::from("http://localhost:11434/api/chat"),
             AIProvider::OpenAI => String::from("https://api.openai.com/v1/chat/completions"),
-            AIProvider::Anthropic => String::from("https://api.anthropic.com/v1/chat/completions"),
+            AIProvider::Anthropic => String::from("https://api.anthropic.com/v1/messages"),
         }
     }
 
@@ -123,7 +123,10 @@ impl AIProvider {
     pub fn get_api_key_value(&self) -> String {
         match self {
             AIProvider::Ollama => String::new(),
-            AIProvider::OpenAI => std::env::var("OPENAI_API_KEY").unwrap_or_default(),
+            AIProvider::OpenAI => format!(
+                "Bearer {}",
+                std::env::var("OPENAI_API_KEY").unwrap_or_default()
+            ),
             AIProvider::Anthropic => std::env::var("ANTHROPIC_API_KEY").unwrap_or_default(),
         }
     }
