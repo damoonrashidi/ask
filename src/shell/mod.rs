@@ -38,7 +38,7 @@ impl Guesser {
             let parent_process_name = String::from_utf8_lossy(&child.stdout)
                 .trim()
                 .chars()
-                .filter(char::is_ascii)
+                .filter(|c| c.is_ascii_alphabetic() || *c == '/')
                 .collect();
             Ok(parent_process_name)
         }
