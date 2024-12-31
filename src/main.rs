@@ -87,14 +87,15 @@ async fn main() -> anyhow::Result<()> {
                     code: KeyCode::Char('e'),
                     ..
                 } => {
-                    std::fs::write(".command", &commands[current])?;
+                    let tmp_filename = ".command.sh";
+                    std::fs::write(tmp_filename, &commands[current])?;
                     std::env::set_current_dir(".").unwrap();
                     let editor = std::env::var("EDITOR").unwrap_or(String::from("nano"));
                     let status = std::process::Command::new(&editor)
-                        .arg(".command")
+                        .arg(tmp_filename)
                         .status()?;
                     if status.success() {
-                        let edited = std::fs::read_to_string(".command")?;
+                        let edited = std::fs::read_to_string(tmp_filename)?;
                         commands[current] = edited.trim().to_string();
                         crossterm::execute!(
                             stdout,
@@ -104,7 +105,7 @@ async fn main() -> anyhow::Result<()> {
                         )?;
                         crossterm::terminal::enable_raw_mode()?;
                     }
-                    std::fs::remove_file(".command")?;
+                    std::fs::remove_file(tmp_filename)?;
                 }
                 KeyEvent {
                     code: KeyCode::Esc | KeyCode::Char('q'),
