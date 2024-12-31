@@ -14,10 +14,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Install latest nightly
+      - name: Install latest stable
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly
+          toolchain: stable
           override: true
           components: rustfmt, clippy
       - uses: actions/checkout@master
