@@ -130,6 +130,35 @@ impl AIProvider {
             AIProvider::Anthropic => std::env::var("ANTHROPIC_API_KEY").unwrap_or_default(),
         }
     }
+
+    #[must_use]
+    pub fn get_request_body(&self, model: &str, prompt: &str, question: &str) -> serde_json::Value {
+        match self {
+            AIProvider::Ollama | AIProvider::OpenAI => {
+                serde_json::json!({
+                    "model": model,
+                    "temperature": 1.0,
+                    "stream": true,
+                    "messages": [
+                        {"role": "system", "content": prompt},
+                        {"role": "user", "content": question}
+                    ],
+                })
+            }
+            AIProvider::Anthropic => {
+                serde_json::json!({
+                    "model": model,
+                    "temperature": 1.0,
+                    "max_tokens": 100,
+                    "stream": true,
+                    "system": prompt,
+                    "messages": [
+                        {"role": "user", "content": question}
+                    ],
+                })
+            }
+        }
+    }
 }
 
 impl Default for AIConf {

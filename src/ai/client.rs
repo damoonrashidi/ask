@@ -15,7 +15,7 @@ impl AI {
     ///
     /// This function will panic if the remote resource could not be reached.
     #[must_use]
-    pub fn ask(question: &String, shell: &String) -> Receiver<(u8, String)> {
+    pub fn ask(question: &str, shell: &String) -> Receiver<(u8, String)> {
         let config = Config::get_or_default();
         let url = config.ai.provider.get_url();
         let system_prompt = format!(
@@ -25,15 +25,10 @@ impl AI {
         Your response should be strictly a string with the command,
         do not add backticks, not json or any other format. Do not add any formatting."
         );
-        let body = serde_json::json!({
-            "model": config.ai.model,
-            "temperature": 1.0,
-            "stream": true,
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": question}
-            ],
-        });
+        let body = config
+            .ai
+            .provider
+            .get_request_body(&config.ai.model, &system_prompt, question);
 
         let (tx, rx) = std::sync::mpsc::channel();
 
@@ -50,6 +45,7 @@ impl AI {
                         config.ai.provider.get_api_key_header(),
                         config.ai.provider.get_api_key_value(),
                     )
+                    .header("anthropic-version", "2023-06-01")
                     .json(&body)
                     .send()
                     .await
@@ -62,25 +58,15 @@ impl AI {
                         continue;
                     };
 
-                    match config.ai.provider {
-                        crate::config::AIProvider::Ollama => {
-                            for line in text.lines() {
-                                let Some(content) = AI::parse_ollama_chunk(line) else {
-                                    continue;
-                                };
-                                tx.send((i, content.to_string())).unwrap();
-                            }
+                    for line in text.lines() {
+                        if let Some(content) = match config.ai.provider {
+                            crate::config::AIProvider::Ollama => AI::parse_ollama_chunk(line),
+                            crate::config::AIProvider::OpenAI => AI::parse_openai_chunk(line),
+                            crate::config::AIProvider::Anthropic => AI::parse_anthropic_chunk(line),
+                        } {
+                            tx.send((i, content.to_string())).ok();
                         }
-                        crate::config::AIProvider::OpenAI => {
-                            for line in text.lines() {
-                                let Some(content) = AI::parse_openai_chunk(line) else {
-                                    continue;
-                                };
-                                tx.send((i, content.to_string())).unwrap();
-                            }
-                        }
-                        crate::config::AIProvider::Anthropic => todo!(),
-                    };
+                    }
                 }
             });
         }
@@ -92,30 +78,21 @@ impl AI {
         let stripped = chunk.trim().strip_prefix("data: ")?;
         let parsed = serde_json::from_str::<Value>(stripped).ok()?;
 
-        parsed
-            .get("choices")?
-            .get(0)?
-            .get("delta")?
-            .get("content")?
+        parsed["choices"][0]["delta"]["content"]
             .as_str()
             .map(String::from)
     }
 
     fn parse_ollama_chunk(chunk: &str) -> Option<String> {
-        serde_json::from_str::<Value>(chunk).ok().and_then(|json| {
-            let message = json.get("message")?.get("content")?;
-            message.as_str().map(String::from)
-        })
+        serde_json::from_str::<Value>(chunk)
+            .ok()
+            .and_then(|json| json["message"]["content"].as_str().map(String::from))
     }
 
-    #[allow(unused)]
     fn parse_anthropic_chunk(chunk: &str) -> Option<String> {
-        let stripped = chunk.trim().strip_prefix("event: completion")?.trim();
-        serde_json::from_str::<Value>(stripped)
-            .ok()
-            .and_then(|json| {
-                let text = json.get("completion")?;
-                text.as_str().map(String::from)
-            })
+        let stripped = chunk.trim().strip_prefix("data: ")?;
+        let parsed = serde_json::from_str::<Value>(stripped).ok()?;
+
+        parsed.get("delta")?.get("text")?.as_str().map(String::from)
     }
 }
