@@ -19,7 +19,7 @@ impl AI {
         let config = Config::get_or_default();
         let url = config.ai.provider.get_url();
         let system_prompt = format!(
-            "You are a helpful {shell} code snippet generator.
+            "/nothink You are a helpful {shell} code snippet generator.
         You will be provided a description of the requested {shell}
         command and you should output the {shell} command and nothing else.
         Your response should be strictly a string with the command,
@@ -87,6 +87,7 @@ impl AI {
         serde_json::from_str::<Value>(chunk)
             .ok()
             .and_then(|json| json["message"]["content"].as_str().map(String::from))
+            .filter(|chunk| chunk != "<think>" && chunk != "</think>" && !chunk.trim().is_empty())
     }
 
     fn parse_anthropic_chunk(chunk: &str) -> Option<String> {

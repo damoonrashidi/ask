@@ -14,7 +14,7 @@ impl Guesser {
             .map(|shell| {
                 shell
                     .split('/')
-                    .last()
+                    .next_back()
                     .map_or(fallback, String::from)
                     .to_string()
             })

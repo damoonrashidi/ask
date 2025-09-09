@@ -137,7 +137,7 @@ impl AIProvider {
             AIProvider::Ollama | AIProvider::OpenAI => {
                 serde_json::json!({
                     "model": model,
-                    "temperature": 1.0,
+                    "temperature": 0.7,
                     "stream": true,
                     "messages": [
                         {"role": "system", "content": prompt},
@@ -148,7 +148,7 @@ impl AIProvider {
             AIProvider::Anthropic => {
                 serde_json::json!({
                     "model": model,
-                    "temperature": 1.0,
+                    "temperature": 0.7,
                     "max_tokens": 100,
                     "stream": true,
                     "system": prompt,
